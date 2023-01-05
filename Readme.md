@@ -30,11 +30,15 @@ NODE_ENV=development
 JWT_SECRET=
 ```
 
+### Folder Structure:
+
+The following folder/file structure will be followed throughout the project folder:
+
 **Note:** _The values for `DB_URI` & `JWT_SECRET` variables will be provided separately._
 
 - Run `npm run dev` to start the development server on `http://localhost:6400`
 
-### Suggested Extensions and Plugins :
+### Suggested Extensions and Plugins:
 
 _(If using Visual Studio Code)_
 
