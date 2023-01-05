@@ -34,7 +34,11 @@ JWT_SECRET=
 
 - Run `npm run dev` to start the development server on `http://localhost:6400`
 
-### Suggested Extensions and Plugins :
+### Folder Structure:
+
+The following folder/file structure will be followed throughout the project.
+
+### Suggested Extensions and Plugins:
 
 _(If using Visual Studio Code)_
 
