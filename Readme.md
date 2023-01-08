@@ -34,6 +34,39 @@ JWT_SECRET=
 
 - Run `npm run dev` to start the development server on `http://localhost:6400`
 
+### Suggested Folder/File Structure:
+
+```
+root
+|   .env
+|   .gitignore
+|   nodemon.json
+|   package-lock.json
+|   package.json
+|   Readme.md
+|   tsconfig.json
++---.vscode
+|       settings.json
+\---src
+    |   index.ts
+    +---config
+    |       db.ts
+    +---constants
+    |       <type>.constants.ts
+    +---controllers
+    |       <controller_name>.controller.ts
+    +---env
+    |       config.ts
+    +---middlewares
+    |       <middleware_name>.middleware.ts
+    +---models
+    |       <model_name>.model.ts
+    +---routes
+    |       <router_name>.routes.ts
+    \---types
+            type_name.ts
+```
+
 ### Suggested Extensions and Plugins :
 
 _(If using Visual Studio Code)_

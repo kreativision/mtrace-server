@@ -35,11 +35,17 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.python"
   },
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
   "editor.formatOnSave": true,
   "editor.minimap.renderCharacters": false,
   "editor.suggest.preview": true,
   "editor.suggest.showColors": false,
   "files.insertFinalNewline": true,
   "workbench.preferredDarkColorTheme": "Monokai",
-  "explorer.compactFolders": false
+  "explorer.compactFolders": false,
+  "typescript.updateImportsOnFileMove.enabled": "always"
 }
