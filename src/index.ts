@@ -1,23 +1,22 @@
-import express, {
-  Application,
-  json,
-  Request,
-  Response,
-  urlencoded,
-} from "express";
+import connectDatabase from "@config/db";
+import { getEnv } from "@env/config";
+import errorHandler from "@middlewares/error.middleware";
+import userRoutes from "@routes/user.routes";
 import cors from "cors";
-import { getEnv } from "./env/config";
+import express, { Application, json, urlencoded } from "express";
 
 const app: Application = express();
 const { PORT, NODE_ENV } = getEnv();
+
+connectDatabase();
 
 app.use(cors());
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
-app.get("/", (_req: Request, res: Response) => {
-  res.send("Hello World!");
-});
+app.use("/api/user", userRoutes);
+
+app.use(errorHandler);
 
 app.listen(PORT, (): void => {
   if (NODE_ENV === "development")
