@@ -1,12 +1,12 @@
-import { getEnv } from "@env/config";
+import { NextFunction, RequestHandler } from "express";
+import { StatusCodes } from "http-status-codes";
+import { JsonWebTokenError, verify } from "jsonwebtoken";
+import { getEnv } from "../env/config";
 import {
   AuthTokenPayload,
   TypedRequest,
   TypedResponse,
-} from "@mt-types/requests";
-import { NextFunction, RequestHandler } from "express";
-import { StatusCodes } from "http-status-codes";
-import { JsonWebTokenError, verify } from "jsonwebtoken";
+} from "../types/requests";
 
 const authenticate: RequestHandler = (
   req: TypedRequest,
