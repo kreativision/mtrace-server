@@ -47,5 +47,7 @@
   "files.insertFinalNewline": true,
   "workbench.preferredDarkColorTheme": "Monokai",
   "explorer.compactFolders": false,
-  "typescript.updateImportsOnFileMove.enabled": "always"
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative"
 }
