@@ -1,6 +1,10 @@
-import { getEnv } from "@env/config";
+/*
+ * This file is no longer used as is.
+ * We're planning to not open the connection from within the app, but externally.
+ */
 import { connect, set } from "mongoose";
 import { exit } from "process";
+import { getEnv } from "../env/config";
 
 export default async function connectDatabase() {
   const { DB_URI, NODE_ENV } = getEnv();
