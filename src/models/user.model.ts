@@ -1,6 +1,6 @@
-import { defaultBudget } from "@constants/app.constants";
-import { IUser } from "@mt-types/user";
 import { model, Schema } from "mongoose";
+import { defaultBudget } from "../constants/app.constants";
+import { IUser } from "../types/user";
 
 const userSchema = new Schema<IUser>(
   {
@@ -17,9 +17,17 @@ const userSchema = new Schema<IUser>(
           description: { type: "string", maxlength: 120 },
         },
       ],
+      required: true,
       default: defaultBudget,
       max: [12, "Cannot have more than 12 categories"],
       min: [1, "Need at least 1 cateogry"],
+    },
+    securityQuestion: {
+      type: {
+        question: { type: "string", required: true, trim: true },
+        answer: { type: "string", required: true, trim: true },
+      },
+      required: true,
     },
     defaultBudgetModified: { type: "boolean", required: true, default: false },
   },
