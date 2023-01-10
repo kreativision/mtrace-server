@@ -1,23 +1,21 @@
-import { connect, set } from "mongoose";
+import mongoose from "mongoose";
 
-let connection: any = null;
+// From Mongoose official docs: https://mongoosejs.com/docs/lambda.html
+let conn: any = null;
+export const connectMongo = async (URI: string) => {
+  if (conn === null) {
+    mongoose.set("strictQuery", false);
+    conn = mongoose
+      .connect(URI, {
+        serverSelectionTimeoutMS: 5000,
+      })
+      .then(() => mongoose)
+      .catch((e) => console.error(e));
 
-export const initiateConnection = async (URI: string) => {
-  // If connection is pooled, return the connection;
-  if (connection) return connection;
-  // Create a new connection
-  try {
-    set("strictQuery", false);
-    connection = await connect(URI);
-    console.log(`Connected MongoDB at: ${connection.connection.host}`);
-    return connection;
-  } catch (error) {
-    console.error(error);
-    // process.exit(1); // TODO: check if terminating from here has a problem in the long run
-    throw error;
+    // awaiting connection after assigning to the "conn" variable
+    // to avoid multiple function calls creating new connections
+    await conn;
   }
-};
 
-export const getConnection = () => {
-  return connection;
+  return conn;
 };
