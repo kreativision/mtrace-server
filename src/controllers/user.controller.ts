@@ -1,11 +1,11 @@
-import { getEnv } from "@env/config";
-import User from "@models/user.model";
-import { TypedRequest, TypedResponse } from "@mt-types/requests";
-import { IUser } from "@mt-types/user";
 import { compare, genSalt, hash } from "bcrypt";
 import routeHandler from "express-async-handler";
 import { StatusCodes } from "http-status-codes";
 import { sign } from "jsonwebtoken";
+import { getEnv } from "../env/config";
+import User from "../models/user.model";
+import { TypedRequest, TypedResponse } from "../types/requests";
+import { IUser } from "../types/user";
 
 /**
  * @description register a new user with unique email address
@@ -14,8 +14,14 @@ import { sign } from "jsonwebtoken";
  */
 export const register = routeHandler(
   async (req: TypedRequest<{}, Partial<IUser>>, res: TypedResponse) => {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
+    const { name, email, password, securityQuestion } = req.body;
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !securityQuestion ||
+      Object.keys(securityQuestion).length !== 2
+    ) {
       res.status(StatusCodes.BAD_REQUEST);
       throw new Error("Please provide all the required fields.");
     }
@@ -30,10 +36,15 @@ export const register = routeHandler(
 
     const salt: string = await genSalt();
     const encryptedPassword: string = await hash(password, salt);
+    const encryptedAnswer: string = await hash(securityQuestion.answer, salt);
     const created = await User.create({
       name,
       email,
       password: encryptedPassword,
+      securityQuestion: {
+        question: securityQuestion.question,
+        answer: encryptedAnswer,
+      },
     });
 
     if (created)

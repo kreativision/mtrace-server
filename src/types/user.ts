@@ -8,4 +8,8 @@ export type IUser = {
   password: string;
   defaultBudget?: Array<ICategory>;
   defaultBudgetModified?: boolean;
+  securityQuestion: {
+    question: string;
+    answer: string;
+  };
 };

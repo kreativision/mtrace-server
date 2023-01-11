@@ -1,6 +1,6 @@
-import { getEnv } from "@env/config";
-import { TypedResponse } from "@mt-types/requests";
 import { ErrorRequestHandler, NextFunction, Request } from "express";
+import { getEnv } from "../env/config";
+import { TypedResponse } from "../types/requests";
 
 const errorHandler: ErrorRequestHandler = (
   err: Error | undefined,

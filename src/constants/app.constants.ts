@@ -1,4 +1,4 @@
-import { ICategory } from "@mt-types/category";
+import { ICategory } from "../types/category";
 
 export const defaultBudget: ICategory[] = [
   {
