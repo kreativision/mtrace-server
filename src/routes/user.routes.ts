@@ -15,4 +15,4 @@ userRoutes.get("/details", authenticate, getUserDetails);
 // TODO: userRoutes.delete("/update", authenticate, delete);
 
 export default userRoutes;
-//testcomment
+
