@@ -2,6 +2,7 @@ export type ICategory = {
   title: string;
   amount: number;
   color: string;
-  unmanaged: boolean;
+  managed: boolean;
+  editable: boolean;
   description?: string;
 };
