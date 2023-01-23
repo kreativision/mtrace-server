@@ -1,23 +1,14 @@
-import mongoose, { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 import { IBudget } from "../types/budget";
-import User from "./user.model";
 
 const budgetSchema = new Schema<IBudget>({
-  user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: User },
+  user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
   categories: {
-    type: [
-      {
-        title: { type: "string", required: true, trim: true },
-        amount: { type: "number", required: true, default: 0 },
-        color: { type: "string", required: true },
-        managed: { type: "boolean", required: true, default: true },
-        editable: { type: "boolean", required: true, default: true },
-        description: { type: "string", maxlength: 120 },
-      },
+    type: [{ type: Schema.Types.ObjectId, ref: "Category", required: true }],
+    validate: [
+      (val: Array<Types.ObjectId>) => val.length > 0 && val.length <= 12,
+      "Only 1 to 12 categories are allowed",
     ],
-    required: true,
-    maxlength: [12, "Cannot have more than 12 categories"],
-    minlength: [1, "Need at least 1 cateogry"],
   },
   month: {
     type: Number,

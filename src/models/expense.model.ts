@@ -1,6 +1,5 @@
-import mongoose, { model, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IExpense } from "../types/expense";
-import User from "./user.model";
 
 const expenseSchema = new Schema<IExpense>(
   {
@@ -8,10 +7,12 @@ const expenseSchema = new Schema<IExpense>(
     description: { type: String, trim: true, maxlength: 260 },
     expenseDate: { type: Date, default: Date.now },
     category: {
-      type: String,
-      required: [true, "Please add the category name"],
+      type: Schema.Types.ObjectId,
+      required: [true, "Please add the category"],
+      ref: "Category",
     },
-    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: User },
+    plan: { type: Schema.Types.ObjectId, ref: "ExpensePlan" },
+    user: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     amount: { type: Number, required: true },
     reverted: { type: Boolean, required: true, default: false },
   },

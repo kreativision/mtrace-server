@@ -1,6 +1,7 @@
 import routeHandler from "express-async-handler";
 import { StatusCodes } from "http-status-codes";
 import Budget from "../models/budget.model";
+import Category from "../models/category.model";
 import { IBudget } from "../types/budget";
 import { TypedRequest, TypedResponse } from "../types/requests";
 
@@ -13,9 +14,11 @@ export const createBudget = routeHandler(
   async (req: TypedRequest<{}, Partial<IBudget>>, res: TypedResponse) => {
     const { userId } = req;
     const { categories, month, year } = req.body;
+    const createdCategories = await Category.insertMany(categories);
+    const _ids = createdCategories?.map((cat) => cat._id);
     const created = await Budget.create({
       user: userId,
-      categories,
+      categories: _ids,
       month,
       year,
     });

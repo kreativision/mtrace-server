@@ -1,6 +1,5 @@
-import mongoose, { model, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { IExpensePlan } from "../types/expensePlan";
-import User from "./user.model";
 
 const expensePlanSchema = new Schema<IExpensePlan>(
   {
@@ -16,9 +15,9 @@ const expensePlanSchema = new Schema<IExpensePlan>(
       maxlength: 180,
     },
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       required: true,
-      ref: User,
+      ref: "User",
     },
     open: {
       type: Boolean,
