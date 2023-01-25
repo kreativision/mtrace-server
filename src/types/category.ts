@@ -1,10 +1,14 @@
 import { Types } from "mongoose";
 
-export type ICategory = {
-  _id?: Types.ObjectId;
+export interface ICategory {
+  _id?: Types.ObjectId | string;
   title: string;
   amount: number;
   color: string;
   managed: boolean;
   description?: string;
-};
+}
+
+export interface CategoryOps extends ICategory {
+  operation?: "added" | "updated" | "removed";
+}
