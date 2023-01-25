@@ -5,7 +5,6 @@ export const defaultBudget: ICategory[] = [
     title: "Food",
     amount: 2000,
     managed: true,
-    editable: false,
     color: "#000000",
     description:
       "Use to record everything from groceries, snacks, meals or any other edible items.",
@@ -14,7 +13,6 @@ export const defaultBudget: ICategory[] = [
     title: "Medical",
     amount: 2000,
     managed: false,
-    editable: false,
     color: "#000000",
     description: "Any kind of medical expense.",
   },
@@ -22,7 +20,6 @@ export const defaultBudget: ICategory[] = [
     title: "Personal",
     amount: 2000,
     managed: true,
-    editable: false,
     color: "#000000",
     description: "Haircuts, cosmetics, other personal needs.",
   },
@@ -30,7 +27,6 @@ export const defaultBudget: ICategory[] = [
     title: "Shopping",
     amount: 2000,
     managed: true,
-    editable: false,
     color: "#000000",
     description:
       "Online or otherwise which doesn’t come under the other purchase categories. Mostly dealing with lasting material goods.",
@@ -39,7 +35,6 @@ export const defaultBudget: ICategory[] = [
     title: "Transport",
     amount: 2000,
     managed: true,
-    editable: false,
     color: "#000000",
     description:
       "Includes all kinds of travel like public transport, cabs, long distance travel etc.",
@@ -48,7 +43,6 @@ export const defaultBudget: ICategory[] = [
     title: "Utilities",
     amount: 2000,
     managed: true,
-    editable: false,
     color: "#000000",
     description:
       "House rent, phone/internet bills, electricity, household items like toiletries etc.",

@@ -13,8 +13,8 @@ const budgetSchema = new Schema<IBudget>({
   month: {
     type: Number,
     required: [true, "Please add month"],
-    min: 1,
-    max: 12,
+    min: 0,
+    max: 11,
   },
   year: { type: Number, required: [true, "Please add the year"] },
 });

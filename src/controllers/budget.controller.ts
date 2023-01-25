@@ -16,19 +16,12 @@ export const createBudget = routeHandler(
     const { categories, month, year } = req.body;
     const createdCategories = await Category.insertMany(categories);
     const _ids = createdCategories?.map((cat) => cat._id);
-    const created = await Budget.create({
+    await Budget.create({
       user: userId,
       categories: _ids,
       month,
       year,
     });
-    if (created) {
-      res
-        .status(StatusCodes.OK)
-        .json({ message: "Budget created successfully" });
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR);
-      throw new Error("Something went wrong while creating budget.");
-    }
+    res.status(StatusCodes.OK).json({ message: "Budget created successfully" });
   }
 );
