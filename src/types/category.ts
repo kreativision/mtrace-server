@@ -1,7 +1,10 @@
+import { Types } from "mongoose";
+
 export type ICategory = {
+  _id?: Types.ObjectId;
   title: string;
   amount: number;
   color: string;
-  unmanaged: boolean;
+  managed: boolean;
   description?: string;
 };
