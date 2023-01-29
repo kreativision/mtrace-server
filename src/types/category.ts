@@ -12,3 +12,7 @@ export interface ICategory {
 export interface CategoryOps extends ICategory {
   operation?: "added" | "updated" | "removed";
 }
+
+export interface CategorySummary extends ICategory {
+  total: number;
+}
