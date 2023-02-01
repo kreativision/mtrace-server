@@ -148,7 +148,7 @@ export const listExpenses = routeHandler(
   ) => {
     const { filter, paginate, sort } = req.body;
 
-    // Create the filtering stage for the aggregation pipeline.
+    // Create the filtering stage for pipeline.
     const matchStage: PipelineStage = {
       $match: {
         user: new Types.ObjectId(req.userId),
@@ -159,15 +159,58 @@ export const listExpenses = routeHandler(
         },
       },
     };
-    const sortStage: PipelineStage = {
-      $sort: sort ? sort : { expenseDate: -1 },
-    };
 
     // Add category list filter query if present in the request body.
     if (filter.categories.length > 0)
       matchStage.$match.category = {
         $in: filter.categories.map((c) => new Types.ObjectId(c)),
       };
+
+    // Create the sorting stage for pipeline.
+    const sortStage: PipelineStage = {
+      $sort: sort ? sort : { expenseDate: -1 },
+    };
+
+    // Lookup stage segments to collect category data in the pipeline.
+    const lookup1: PipelineStage = {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+    };
+    const lookup2: PipelineStage = { $unwind: "$category" };
+    const lookup3: PipelineStage = {
+      $project: {
+        "category._id": false,
+        "category.__v": false,
+        "category.amount": false,
+        "category.description": false,
+        "category.managed": false,
+        user: false,
+        __v: false,
+      },
+    };
+
+    // Create the general pipeline for the listing data
+    const dataFacet: (
+      | PipelineStage.Lookup
+      | PipelineStage.Match
+      | PipelineStage.Project
+      | PipelineStage.Sort
+      | PipelineStage.Unwind
+      | PipelineStage.Skip
+      | PipelineStage.Limit
+    )[] = [matchStage, sortStage, lookup1, lookup2, lookup3];
+
+    // Add Pagination Stage if present in the request body.
+    if (paginate) {
+      dataFacet.push(
+        { $skip: paginate.page * paginate.size },
+        { $limit: paginate.size }
+      );
+    }
 
     /**
      * Faceted aggregation pipeline.
@@ -179,32 +222,7 @@ export const listExpenses = routeHandler(
     const expenses = await Expense.aggregate([
       {
         $facet: {
-          data: [
-            matchStage,
-            sortStage,
-            {
-              $lookup: {
-                from: "categories",
-                localField: "category",
-                foreignField: "_id",
-                as: "category",
-              },
-            },
-            { $unwind: "$category" },
-            {
-              $project: {
-                "category._id": false,
-                "category.__v": false,
-                "category.amount": false,
-                "category.description": false,
-                "category.managed": false,
-                user: false,
-                __v: false,
-              },
-            },
-            { $skip: paginate.page * paginate.size },
-            { $limit: paginate.size },
-          ],
+          data: dataFacet,
           meta: [
             matchStage,
             { $count: "totalDocuments" },
