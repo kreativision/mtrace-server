@@ -149,7 +149,7 @@ export const listExpenses = routeHandler(
     const { filter, paginate, sort } = req.body;
 
     // Create the filtering stage for pipeline.
-    const matchStage: PipelineStage = {
+    const matchStage: PipelineStage.Match = {
       $match: {
         user: new Types.ObjectId(req.userId),
         plan: null,
@@ -167,12 +167,12 @@ export const listExpenses = routeHandler(
       };
 
     // Create the sorting stage for pipeline.
-    const sortStage: PipelineStage = {
+    const sortStage: PipelineStage.Sort = {
       $sort: sort ? sort : { expenseDate: -1 },
     };
 
     // Lookup stage segments to collect category data in the pipeline.
-    const lookup1: PipelineStage = {
+    const lookup: PipelineStage.Lookup = {
       $lookup: {
         from: "categories",
         localField: "category",
@@ -180,8 +180,8 @@ export const listExpenses = routeHandler(
         as: "category",
       },
     };
-    const lookup2: PipelineStage = { $unwind: "$category" };
-    const lookup3: PipelineStage = {
+    const unwind: PipelineStage.Unwind = { $unwind: "$category" };
+    const projection: PipelineStage.Project = {
       $project: {
         "category._id": false,
         "category.__v": false,
@@ -202,15 +202,14 @@ export const listExpenses = routeHandler(
       | PipelineStage.Unwind
       | PipelineStage.Skip
       | PipelineStage.Limit
-    )[] = [matchStage, sortStage, lookup1, lookup2, lookup3];
+    )[] = [matchStage, sortStage, lookup, unwind, projection];
 
     // Add Pagination Stage if present in the request body.
-    if (paginate) {
+    if (paginate)
       dataFacet.push(
         { $skip: paginate.page * paginate.size },
         { $limit: paginate.size }
       );
-    }
 
     /**
      * Faceted aggregation pipeline.
