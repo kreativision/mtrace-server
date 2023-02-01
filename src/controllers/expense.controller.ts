@@ -1,7 +1,6 @@
-import dayjs from "dayjs";
 import routeHandler from "express-async-handler";
 import { StatusCodes } from "http-status-codes";
-import { Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 import Expense from "../models/expense.model";
 import { ICategory } from "../types/category";
 import { IExpense } from "../types/expense";
@@ -54,20 +53,16 @@ export const updateExpense = routeHandler(
 
 /**
  * Save a new expense.
- * @description get expenses summarized by category in the current month
+ * @description get expenses summarized by category in the month time frame provided
  * @method GET /api/expenses/summary
  * @access protected
  */
 export const getMonthSummary = routeHandler(
   async (
-    req: TypedRequest<{}, {}>,
+    req: TypedRequest<{ firstDay: string; lastDay: string }, {}>,
     res: TypedResponse<Array<{ category: ICategory; spent: number }>>
   ) => {
-    // TODO: Should we get these values from the frontend ??
-    const firstDay = dayjs().startOf("month").toDate();
-    const lastDay = dayjs().endOf("month").toDate();
-
-    console.log({ firstDay, lastDay });
+    const { firstDay, lastDay } = req.query;
 
     /**
      * Aggregation pipeline
@@ -87,15 +82,15 @@ export const getMonthSummary = routeHandler(
           plan: null,
           reverted: false,
           expenseDate: {
-            $gte: firstDay,
-            $lte: lastDay,
+            $gte: new Date(firstDay),
+            $lte: new Date(lastDay),
           },
         },
       },
       {
         $group: {
           _id: { category: "$category" },
-          total: { $sum: "$amount" },
+          spent: { $sum: "$amount" },
         },
       },
       {
@@ -121,5 +116,140 @@ export const getMonthSummary = routeHandler(
       message: "Summary for the current month retrieved successfully.",
       response: summary,
     });
+  }
+);
+
+type ListingQueryParams = {
+  filter: {
+    startDate: string;
+    endDate: string;
+    categories: string[];
+  };
+  sort: {
+    expenseDate?: 1 | -1;
+    amount?: 1 | -1;
+  };
+  paginate: {
+    page: number;
+    size: number;
+  };
+};
+
+/**
+ * Expenses list
+ * @description Get expense list with filter|sort|pagination
+ * @method GET /api/expenses/list
+ * @access protected
+ */
+export const listExpenses = routeHandler(
+  async (
+    req: TypedRequest<{}, ListingQueryParams>,
+    res: TypedResponse<ICategory[]>
+  ) => {
+    const { filter, paginate, sort } = req.body;
+
+    // Create the filtering stage for the aggregation pipeline.
+    const matchStage: PipelineStage = {
+      $match: {
+        user: new Types.ObjectId(req.userId),
+        plan: null,
+        expenseDate: {
+          $gte: new Date(filter.startDate),
+          $lte: new Date(filter.endDate),
+        },
+      },
+    };
+    const sortStage: PipelineStage = {
+      $sort: sort ? sort : { expenseDate: -1 },
+    };
+
+    // Add category list filter query if present in the request body.
+    if (filter.categories.length > 0)
+      matchStage.$match.category = {
+        $in: filter.categories.map((c) => new Types.ObjectId(c)),
+      };
+
+    /**
+     * Faceted aggregation pipeline.
+     * Uses the same matching stage for both facets:
+     *  > First facet has paginated data.
+     *  > Second facet counts documents; providing metadata for the page.
+     * Unwind the meta facet to have it as an object instead of default array.
+     */
+    const expenses = await Expense.aggregate([
+      {
+        $facet: {
+          data: [
+            matchStage,
+            sortStage,
+            {
+              $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category",
+              },
+            },
+            { $unwind: "$category" },
+            {
+              $project: {
+                "category._id": false,
+                "category.__v": false,
+                "category.amount": false,
+                "category.description": false,
+                "category.managed": false,
+                user: false,
+                __v: false,
+              },
+            },
+            { $skip: paginate.page * paginate.size },
+            { $limit: paginate.size },
+          ],
+          meta: [
+            matchStage,
+            { $count: "totalDocuments" },
+            {
+              $addFields: {
+                ...paginate,
+                totalPages: {
+                  $ceil: { $divide: ["$totalDocuments", paginate.size] },
+                },
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: "$meta" },
+    ]);
+
+    res.json({
+      message: "List retrieved successfully.",
+      response: expenses,
+    });
+  }
+);
+
+/**
+ * Delete expense
+ * @description Delete a single expense by a user
+ * @method DELETE /api/expenses
+ * @access protected
+ */
+export const deleteExpense = routeHandler(
+  async (
+    req: TypedRequest<{ expenseId: "string" }, {}>,
+    res: TypedResponse
+  ) => {
+    const deleted = await Expense.deleteOne({
+      user: new Types.ObjectId(req.userId),
+      _id: new Types.ObjectId(req.query.expenseId),
+    });
+
+    if (deleted.acknowledged && deleted.deletedCount === 1) {
+      res.json({ message: "Expense deleted successfully." });
+    } else if (deleted.deletedCount === 0) {
+      res.status(StatusCodes.NOT_FOUND);
+      throw new Error("The Expense you're trying to delete does not exist.");
+    }
   }
 );
