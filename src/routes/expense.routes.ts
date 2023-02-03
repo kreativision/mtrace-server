@@ -1,10 +1,22 @@
 import { Router } from "express";
-import { getAllExpense } from "../controllers/expense.controller";
+import {
+  createExpense,
+  deleteExpense,
+  getMonthSummary,
+  listExpenses,
+  updateExpense,
+} from "../controllers/expense.controller";
 import authenticate from "../middlewares/auth.middleware";
 
 const expenseRoutes = Router();
 
-expenseRoutes.get("/", authenticate, getAllExpense);
-// TODO add other endpoints for expense CRUD operations
+expenseRoutes.get("/summary", authenticate, getMonthSummary);
+expenseRoutes.post("/list", authenticate, listExpenses);
+
+expenseRoutes
+  .route("/")
+  .post(authenticate, createExpense)
+  .put(authenticate, updateExpense)
+  .delete(authenticate, deleteExpense);
 
 export default expenseRoutes;

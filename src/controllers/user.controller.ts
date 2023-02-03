@@ -75,12 +75,16 @@ export const login = routeHandler(
       throw new Error("Required Fields are not provided.");
     }
 
-    const user: IUser | null = await User.findOne({ email }, { __v: false });
+    const user: IUser | null = await User.findOne(
+      { email },
+      { __v: false, securityQuestion: false }
+    );
     if (!user) {
       res.status(StatusCodes.NOT_FOUND);
       throw new Error("Email ID is not registered");
-    } else if (await compare(password, user.password)) {
+    } else if (await compare(password, user.password ?? "")) {
       const { JWT_SECRET = "" } = getEnv();
+      delete user.password;
       res.json({
         message: "Login Successful!!",
         response: {
